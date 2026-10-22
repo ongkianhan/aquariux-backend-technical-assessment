@@ -3,9 +3,11 @@ package com.aquariux.technical.assessment.trade.controller;
 import com.aquariux.technical.assessment.trade.dto.request.TradeRequest;
 import com.aquariux.technical.assessment.trade.dto.response.TradeResponse;
 import com.aquariux.technical.assessment.trade.service.TradeServiceInterface;
+import feign.FeignException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +27,14 @@ public class TradeController {
     @Operation(summary = "Execute trade", description = "Execute a buy or sell trade for cryptocurrency pairs")
     public ResponseEntity<TradeResponse> executeTrade(@RequestBody TradeRequest tradeRequest) {
         // TODO: How should a trading API endpoint behave?
-        return ResponseEntity.ok(tradeService.executeTrade(tradeRequest));
+
+        try {
+            TradeResponse response = tradeService.executeTrade(tradeRequest);
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new TradeResponse(e.getMessage()));
+        }
+
     }
 }
